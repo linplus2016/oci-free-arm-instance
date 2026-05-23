@@ -1,0 +1,47 @@
+name: Try to Create OCI VM
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 每 10 分钟运行一次
+    - cron: "*/10 * * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup OCI CLI
+        run: |
+          curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh > install.sh
+          bash install.sh --accept-all-defaults
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Prepare OCI Config & Key
+        run: |
+          mkdir -p ~/.oci
+          echo "${{ secrets.OCI_CLI_KEY_CONTENT }}" > ~/.oci/key.pem
+          chmod 600 ~/.oci/key.pem
+
+          cat <<EOF > ~/.oci/config
+          [DEFAULT]
+          user=${{ secrets.OCI_CLI_USER }}
+          fingerprint=${{ secrets.OCI_CLI_FINGERPRINT }}
+          tenancy=${{ secrets.OCI_CLI_TENANCY }}
+          region=${{ secrets.OCI_CLI_REGION }}
+          key_file=~/.oci/key.pem
+          EOF
+
+      - name: Launch VM
+        run: |
+          oci compute instance launch \
+            --compartment-id ${{ secrets.OCI_COMPARTMENT_ID }} \
+            --availability-domain ${{ secrets.AD_NAME }} \
+            --shape VM.Standard.A1.Flex \
+            --shape-config '{"memoryInGBs": 6, "ocpus": 1}' \
+            --image-id ${{ secrets.IMAGE_ID }} \
+            --subnet-id ${{ secrets.OCI_SUBNET_ID }} \
+            --assign-public-ip true \
+            --metadata '{"ssh_authorized_keys": "${{ secrets.SSH_PUBLIC_KEY }}"}' \
+            --display-name "GitHub-Actions-ARM"
