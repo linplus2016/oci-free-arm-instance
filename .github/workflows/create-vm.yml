@@ -44,7 +44,7 @@ jobs:
             --compartment-id ${{ secrets.OCI_COMPARTMENT_ID }} \
             --availability-domain ${{ secrets.AD_NAME }} \
             --shape VM.Standard.A1.Flex \
-            --shape-config '{"memoryInGBs": 6, "ocpus": 1}' \
+            --shape-config memoryInGBs=6,ocpus=1 \
             --image-id ${{ secrets.IMAGE_ID }} \
             --subnet-id ${{ secrets.OCI_SUBNET_ID }} \
             --assign-public-ip true \
