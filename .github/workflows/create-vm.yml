@@ -24,13 +24,13 @@ jobs:
           chmod 600 ~/.oci/key.pem
 
           cat <<EOF > ~/.oci/config
-[DEFAULT]
-user=${{ secrets.OCI_CLI_USER }}
-fingerprint=${{ secrets.OCI_CLI_FINGERPRINT }}
-tenancy=${{ secrets.OCI_CLI_TENANCY }}
-region=${{ secrets.OCI_CLI_REGION }}
-key_file=~/.oci/key.pem
-EOF
+          [DEFAULT]
+          user=${{ secrets.OCI_CLI_USER }}
+          fingerprint=${{ secrets.OCI_CLI_FINGERPRINT }}
+          tenancy=${{ secrets.OCI_CLI_TENANCY }}
+          region=${{ secrets.OCI_CLI_REGION }}
+          key_file=~/.oci/key.pem
+          EOF
           # 修复：添加config文件权限
           chmod 600 ~/.oci/config
           
