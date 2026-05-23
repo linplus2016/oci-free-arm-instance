@@ -32,8 +32,9 @@ jobs:
           region=${{ secrets.OCI_CLI_REGION }}
           key_file=~/.oci/key.pem
           EOF
-
       - name: Launch VM
+        env:
+          SSH_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
         run: |
           oci compute instance launch \
             --compartment-id ${{ secrets.OCI_COMPARTMENT_ID }} \
@@ -43,5 +44,5 @@ jobs:
             --image-id ${{ secrets.IMAGE_ID }} \
             --subnet-id ${{ secrets.OCI_SUBNET_ID }} \
             --assign-public-ip true \
-            --metadata '{"ssh_authorized_keys": "${{ secrets.SSH_PUBLIC_KEY }}"}' \
+            --metadata "{\"ssh_authorized_keys\": \"$SSH_KEY\"}" \
             --display-name "GitHub-Actions-ARM"
