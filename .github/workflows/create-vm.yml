@@ -32,10 +32,14 @@ jobs:
           region=${{ secrets.OCI_CLI_REGION }}
           key_file=~/.oci/key.pem
           EOF
-      - name: Launch VM
+       - name: Launch VM
         env:
           SSH_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
         run: |
+          # 将SSH密钥写入临时文件
+          mkdir -p ~/.oci
+          echo "$SSH_KEY" > ~/.ssh/id_rsa.pub
+          
           oci compute instance launch \
             --compartment-id ${{ secrets.OCI_COMPARTMENT_ID }} \
             --availability-domain ${{ secrets.AD_NAME }} \
@@ -44,5 +48,5 @@ jobs:
             --image-id ${{ secrets.IMAGE_ID }} \
             --subnet-id ${{ secrets.OCI_SUBNET_ID }} \
             --assign-public-ip true \
-            --metadata "{\"ssh_authorized_keys\": \"$SSH_KEY\"}" \
+            --ssh-authorized-keys-file ~/.ssh/id_rsa.pub \
             --display-name "GitHub-Actions-ARM"
